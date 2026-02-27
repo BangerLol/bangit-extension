@@ -1,0 +1,33 @@
+{
+  "name": "bangit-extension",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build:background": "BUILD_TARGET=background vite build",
+    "build:content": "BUILD_TARGET=content vite build",
+    "build:privy": "BUILD_TARGET=privy vite build",
+    "build:static": "bash scripts/build-static.sh",
+    "build": "bun run build:static && bun run build:background && bun run build:content && bun run build:privy",
+    "watch:background": "BUILD_TARGET=background vite build --watch",
+    "watch:content": "BUILD_TARGET=content vite build --watch",
+    "watch:privy": "BUILD_TARGET=privy vite build --watch",
+    "watch": "bun run build && (bun run watch:background & bun run watch:content & bun run watch:privy)"
+  },
+  "devDependencies": {
+    "@types/bun": "1.3.9",
+    "@vitejs/plugin-react": "5.1.4",
+    "typescript": "5.9.3",
+    "vite": "7.3.1",
+    "vite-plugin-node-polyfills": "0.25.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@privy-io/react-auth": "3.14.1",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "socket.io-client": "4.8.3"
+  }
+}

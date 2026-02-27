@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bangit - Login</title>
+  <link rel="stylesheet" href="popup.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100% !important;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 100%);
+    }
+
+    #root {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .auth-window {
+      width: 100%;
+      max-width: 360px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .auth-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .auth-content img {
+      margin-bottom: 8px;
+      border-radius: 20%;
+    }
+
+    .auth-content h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .auth-content p {
+      margin: 0;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .error-message {
+      color: #ff6b6b !important;
+    }
+
+    .auth-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .secondary-btn {
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .secondary-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="options.js"></script>
+</body>
+</html>

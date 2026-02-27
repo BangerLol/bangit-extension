@@ -1,0 +1,47 @@
+# dependencies (bun install)
+node_modules
+
+# build output
+dist
+
+# stale root-level build artifacts (now output to dist/)
+/background.js
+/content.js
+/vendor.js
+/popup.js
+/options.js
+/offscreen.js
+
+# packaging
+*.tgz
+bangit-extension.zip
+
+# code coverage
+coverage
+*.lcov
+
+# logs
+logs
+*.log
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# dotenv environment variable files
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# caches
+.eslintcache
+.cache
+*.tsbuildinfo
+
+# IntelliJ based IDEs
+.idea
+
+# build verification output
+SHA256SUMS
+
+# Finder (MacOS) folder config
+.DS_Store

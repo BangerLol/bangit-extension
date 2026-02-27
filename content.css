@@ -1,0 +1,4563 @@
+/* Bangit - Tweet Voting Extension Styles */
+
+/* Rubik font is loaded via @font-face in content.js */
+
+/* Base font rule for all Bangit elements */
+[class^="bangit-"],
+[class*=" bangit-"] {
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-weight: 500;
+}
+
+/* CSS Variables matching frontend globals.css */
+:root {
+  --background: #121212;
+  --foreground: #ffffff;
+  --card: #1c1c1c;
+  --card-foreground: #ffffff;
+  --primary: #f2c1fb;
+  --primary-foreground: #1c1c1c;
+  --secondary: #81f052;
+  --secondary-foreground: #1c1c1c;
+  --tertiary: #ff7f7f;
+  --tertiary-foreground: #1c1c1c;
+  --muted: #2c2c2e;
+  --muted-foreground: #9a9a9f;
+  --border: #38383a;
+  --input: #2c2c2e;
+  --surface: #1c1c1c;
+  --text: #ffffff;
+  --textSecondary: #ebebf5;
+  --textTertiary: #9a9a9f;
+  --borderLight: #48484a;
+  --separator: #28282a;
+  --error: #ff7f7f;
+  --darkPrimary: #604d63;
+  --darkSecondary: rgb(44, 85, 26);
+  --darkTertiary: rgb(94, 46, 46);
+}
+
+/* Stats container - holds impact stat and vote button */
+.bangit-stats-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 32px;
+  background: rgba(28, 28, 28, 0.8);
+  border-radius: 8px;
+  border: 1px solid transparent;
+  /* Graceful entry animation - start hidden */
+  opacity: 0;
+  max-width: 0;
+  padding: 4px 0;
+  margin-right: 0;
+  /* Negative margins prevent affecting parent height - container visually overflows */
+  margin-top: -6px;
+  margin-bottom: -6px;
+  overflow: hidden;
+  /* Transition for smooth entry and state changes */
+  transition:
+    opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    padding 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    margin-right 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+/* Animate in when ready */
+.bangit-stats-container.bangit-visible {
+  opacity: 1;
+  max-width: 200px; /* Large enough to contain full content */
+  padding: 4px 4px 4px 8px;
+  margin-right: 8px;
+}
+
+/* Main tweet on post/detail page - vertically center in stats row */
+.bangit-stats-container.bangit-main-tweet {
+  align-self: center;
+  flex-shrink: 0;
+}
+
+/* Voted states for container */
+.bangit-stats-container:has(.bangit-vote-btn.bangit-voted-up) {
+  border-color: rgba(129, 240, 82, 0.3);
+  background: rgba(44, 85, 26, 0.3);
+}
+
+.bangit-stats-container:has(.bangit-vote-btn.bangit-voted-down) {
+  border-color: rgba(255, 127, 127, 0.3);
+  background: rgba(94, 46, 46, 0.3);
+}
+
+/* Impact indicator - display only */
+.bangit-impact {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: normal;
+  color: rgb(113, 118, 123);
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  padding: 0 4px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  cursor: default;
+  transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  transform-origin: center center;
+}
+
+/* Impact animation states */
+.bangit-impact.bangit-animating {
+  animation: bangit-impact-scale 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.bangit-impact.bangit-animating .bangit-impact-glow {
+  animation: bangit-impact-glow 1.2s ease-out forwards;
+}
+
+/* Glow effect element */
+.bangit-impact-glow {
+  position: absolute;
+  inset: -6px;
+  border-radius: 8px;
+  pointer-events: none;
+  opacity: 0;
+  z-index: -1;
+}
+
+.bangit-impact-glow.bangit-glow-up {
+  background: #81f052;
+}
+
+.bangit-impact-glow.bangit-glow-down {
+  background: #ff7f7f;
+}
+
+/* Floating change indicator */
+.bangit-impact-change {
+  position: absolute;
+  left: 50%;
+  top: -15px;
+  transform: translateX(-50%);
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  border: 1px solid;
+}
+
+.bangit-impact-change.bangit-change-up {
+  background: rgba(129, 240, 82, 0.95);
+  border-color: rgba(129, 240, 82, 0.8);
+  color: #fff;
+}
+
+.bangit-impact-change.bangit-change-down {
+  background: rgba(255, 127, 127, 0.95);
+  border-color: rgba(255, 127, 127, 0.8);
+  color: #fff;
+}
+
+.bangit-impact-change.bangit-animating {
+  animation: bangit-change-float 1.2s ease-out forwards;
+}
+
+/* Decimal glow effect for animating value */
+.bangit-impact-value.bangit-animating-value {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.bangit-impact-value .bangit-value-whole {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.bangit-impact-value .bangit-value-decimal-wrapper {
+  position: relative;
+  display: inline-block;
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+.bangit-impact-value .bangit-value-decimal {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.bangit-impact-value .bangit-value-decimal.bangit-decimal-up {
+  color: #81f052;
+}
+
+.bangit-impact-value .bangit-value-decimal.bangit-decimal-down {
+  color: #ff7f7f;
+}
+
+.bangit-impact-value .bangit-value-decimal-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 2px;
+  z-index: -1;
+  opacity: 0;
+}
+
+.bangit-impact-value .bangit-value-decimal-glow.bangit-decimal-glow-up {
+  background: rgba(129, 240, 82, 0.3);
+}
+
+.bangit-impact-value .bangit-value-decimal-glow.bangit-decimal-glow-down {
+  background: rgba(255, 127, 127, 0.3);
+}
+
+.bangit-impact-value .bangit-value-decimal-glow.bangit-animating {
+  animation: bangit-decimal-glow-pulse 1.2s ease-in-out forwards;
+}
+
+/* Keyframe animations */
+@keyframes bangit-impact-scale {
+  0% {
+    transform: scale(1);
+  }
+  21% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes bangit-impact-glow {
+  0% {
+    opacity: 0;
+  }
+  17% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes bangit-change-float {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(0);
+  }
+  17% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  83% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-35px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-40px);
+  }
+}
+
+@keyframes bangit-decimal-glow-pulse {
+  0% { opacity: 0.2; }
+  12.5% { opacity: 0.8; }
+  25% { opacity: 0.2; }
+  37.5% { opacity: 0.8; }
+  50% { opacity: 0.2; }
+  62.5% { opacity: 0.8; }
+  75% { opacity: 0.2; }
+  87.5% { opacity: 0.8; }
+  100% { opacity: 1; }
+}
+
+.bangit-impact-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* Custom tooltip */
+.bangit-impact::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 8px;
+  padding: 6px 10px;
+  background: rgb(50, 50, 50);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.3;
+  white-space: pre;
+  text-align: center;
+  border-radius: 4px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 1000;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+}
+
+.bangit-impact:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Voted states for impact indicator */
+.bangit-impact.bangit-voted-up .bangit-impact-value {
+  color: #81f052;
+}
+
+.bangit-impact.bangit-voted-down .bangit-impact-value {
+  color: #ff7f7f;
+}
+
+.bangit-impact-value {
+  color: #f2c1fb;
+  transition: color 0.2s ease;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* Vote button */
+.bangit-vote-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 10px;
+  background: #f2c1fb;
+  color: #1c1c1c;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  cursor: pointer;
+  transition: background 0.08s ease, transform 0.08s ease;
+  white-space: nowrap;
+}
+
+.bangit-vote-btn:hover {
+  background: #e5a8f0;
+  transform: scale(1.02);
+}
+
+.bangit-vote-btn:active {
+  transform: scale(0.98);
+}
+
+.bangit-vote-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Vote button voted states */
+.bangit-vote-btn.bangit-voted-up {
+  background: rgba(44, 85, 26, 0.9);
+  color: #81f052;
+}
+
+.bangit-vote-btn.bangit-voted-up:hover {
+  background: rgba(44, 85, 26, 1);
+}
+
+.bangit-vote-btn.bangit-voted-down {
+  background: rgba(94, 46, 46, 0.9);
+  color: #ff7f7f;
+}
+
+.bangit-vote-btn.bangit-voted-down:hover {
+  background: rgba(94, 46, 46, 1);
+}
+
+/* Loading state for vote button */
+.bangit-vote-btn.bangit-loading {
+  pointer-events: none;
+  position: relative;
+}
+
+.bangit-vote-btn.bangit-loading .bangit-vote-btn-text {
+  visibility: hidden;
+}
+
+.bangit-vote-btn.bangit-loading::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(28, 28, 28, 0.3);
+  border-top-color: #1c1c1c;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.bangit-vote-btn-text {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Login prompt modal */
+.bangit-login-prompt {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.bangit-prompt-content {
+  background: #1c1c1c;
+  border-radius: 20px;
+  padding: 32px;
+  max-width: 360px;
+  width: 90%;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.bangit-prompt-logo {
+  display: block;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  border-radius: 12px;
+}
+
+.bangit-prompt-content h3 {
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  letter-spacing: -0.02em;
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.bangit-prompt-content p {
+  color: rgb(139, 152, 165);
+  font-size: 15px;
+  margin: 0 0 24px 0;
+  line-height: 1.5;
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.bangit-login-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #f2c1fb;
+  color: #1c1c1c;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 32px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.bangit-login-btn:hover {
+  background: #e8a8f5;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+.bangit-close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  color: rgb(139, 152, 165);
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.bangit-close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+/* Toast notifications */
+.bangit-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: #1c1c1c;
+  color: #f2c1fb;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 10001;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  border: 1px solid #f2c1fb;
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.bangit-toast-visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.bangit-toast-success,
+.bangit-toast-error,
+.bangit-toast-info {
+  background: #1c1c1c;
+  color: #f2c1fb;
+  border-color: #f2c1fb;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* Dark mode adjustments (X is usually dark) */
+@media (prefers-color-scheme: dark) {
+  .bangit-stats-container {
+    background: rgba(28, 28, 28, 0.9);
+  }
+}
+
+/* Power Selector Modal */
+.bangit-power-selector-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10002;
+  animation: fadeIn 0.2s ease;
+  backdrop-filter: blur(6px);
+}
+
+.bangit-power-selector-modal {
+  background: #1c1c1c;
+  border-radius: 16px;
+  padding: 44px 24px;
+  max-width: 450px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+  border: 2px solid #f2c1fb;
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+
+.bangit-power-selector-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  color: #9a9a9f;
+  font-size: 18px;
+  font-weight: 300;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s ease;
+  z-index: 1;
+  opacity: 0.5;
+}
+
+.bangit-power-selector-close:hover {
+  opacity: 1;
+}
+
+.bangit-power-selector-title {
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  text-align: center;
+  letter-spacing: normal;
+}
+
+.bangit-power-selector-stats {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.bangit-power-selector-stats-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  align-items: center;
+}
+
+.bangit-power-stat {
+  display: inline-block;
+  color: #9a9a9f;
+  font-size: 18px;
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+
+.bangit-power-stat-icon {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translate(-100%, -50%);
+  font-size: 18px;
+  padding-right: 4px;
+}
+
+.bangit-power-stat-value {
+  color: #f2c1fb;
+  font-size: 18px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.bangit-power-refill-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 0;
+  background: #81f052;
+  color: #1c1c1c;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.bangit-power-refill-btn:hover {
+  background: #9ff57a;
+}
+
+.bangit-power-selector-direction-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 0 4px;
+}
+
+.bangit-power-selector-direction-label {
+  font-size: 16px;
+  font-weight: 400;
+  width: 48px;
+  text-align: center;
+  color: #9a9a9f;
+  transition: color 0.15s ease;
+}
+
+.bangit-power-selector-direction-label.active-down {
+  color: #ff7f7f;
+}
+
+.bangit-power-selector-direction-label.active-up {
+  color: #81f052;
+}
+
+.bangit-power-selector-slider-container {
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.bangit-power-selector-slider-wrapper {
+  position: relative;
+  height: 32px;
+  --thumb-size: 20px;
+  --track-height: 32px;
+  --glow-color: rgba(242, 193, 251, 0.3);
+  --glow-color-active: rgba(242, 193, 251, 0.45);
+}
+
+.bangit-power-selector-slider-track {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: calc(var(--thumb-size) / 2);
+  right: calc(var(--thumb-size) / 2);
+  z-index: 0;
+}
+
+.bangit-power-selector-slider-visual-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 10px;
+  border-radius: 9999px;
+  background: rgba(31, 41, 55, 0.9);
+  z-index: 2;
+}
+
+.bangit-power-selector-slider-filled {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 10px;
+  border-radius: 9999px;
+  z-index: 3;
+}
+
+.bangit-power-selector-burn-glow-left,
+.bangit-power-selector-burn-glow-right {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 32px;
+  pointer-events: none;
+  filter: blur(7px) saturate(1.15);
+  mix-blend-mode: plus-lighter;
+  z-index: 1;
+}
+
+.bangit-power-selector-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: var(--track-height);
+  background: transparent;
+  outline: none;
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  cursor: pointer;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bangit-power-selector-slider:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.bangit-power-selector-slider::-webkit-slider-runnable-track {
+  background: transparent;
+  height: var(--track-height);
+}
+
+.bangit-power-selector-slider::-moz-range-track {
+  background: transparent;
+  height: var(--track-height);
+}
+
+.bangit-power-selector-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: var(--thumb-size);
+  height: var(--thumb-size);
+  border-radius: 9999px;
+  background: var(--thumb-bg-color, #604d63);
+  border: 2px solid var(--thumb-border-color, #f2c1fb);
+  cursor: pointer;
+  box-shadow: none;
+  margin-top: calc((var(--track-height) - var(--thumb-size)) / 2);
+  position: relative;
+  transition: box-shadow 120ms ease, border-color 120ms ease, background 120ms ease;
+}
+
+.bangit-power-selector-slider::-moz-range-thumb {
+  width: var(--thumb-size);
+  height: var(--thumb-size);
+  border-radius: 9999px;
+  background: var(--thumb-bg-color, #604d63);
+  border: 2px solid var(--thumb-border-color, #f2c1fb);
+  cursor: pointer;
+  box-shadow: none;
+  margin-top: 0;
+  position: relative;
+  transition: box-shadow 120ms ease, border-color 120ms ease, background 120ms ease;
+  border: none;
+}
+
+.bangit-power-selector-slider:hover::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px var(--glow-color);
+}
+
+.bangit-power-selector-slider:hover::-moz-range-thumb {
+  box-shadow: 0 0 0 3px var(--glow-color);
+}
+
+.bangit-power-selector-slider:active::-webkit-slider-thumb {
+  box-shadow: 0 0 0 6px var(--glow-color-active);
+}
+
+.bangit-power-selector-slider:active::-moz-range-thumb {
+  box-shadow: 0 0 0 6px var(--glow-color-active);
+}
+
+.bangit-power-selector-slider:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 5px var(--glow-color-active);
+}
+
+.bangit-power-selector-slider:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 5px var(--glow-color-active);
+}
+
+.bangit-power-selector-slider::-moz-focus-outer {
+  border: 0;
+}
+
+.bangit-power-selector-markers {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 14px;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.bangit-power-selector-marker {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 9999px;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  transition: background 0.15s ease;
+}
+
+.bangit-power-selector-marker-active {
+  background: var(--marker-color, #f2c1fb);
+}
+
+.bangit-power-selector-selected {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.bangit-power-selector-pct {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.bangit-power-selector-pct.up {
+  color: #81f052;
+}
+
+.bangit-power-selector-pct.down {
+  color: #ff7f7f;
+}
+
+.bangit-power-selector-pct.neutral {
+  color: #f2c1fb;
+}
+
+.bangit-power-selector-amounts {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  align-items: center;
+}
+
+.bangit-power-selector-amount,
+.bangit-power-selector-burn {
+  display: inline-flex;
+  align-items: center;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  position: relative;
+}
+
+.bangit-power-selector-amount .bangit-power-stat-icon,
+.bangit-power-selector-burn .bangit-power-stat-icon {
+  margin-right: 2px;
+}
+
+.bangit-power-selector-burn {
+  color: #ffffff;
+}
+
+.bangit-power-selector-info {
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin-bottom: 12px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  border: 1px solid;
+}
+
+.bangit-power-selector-info-text {
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.bangit-power-selector-info.info {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.bangit-power-selector-info.info .bangit-power-selector-info-text {
+  color: rgb(191, 219, 254);
+}
+
+.bangit-power-selector-info.warning {
+  background: rgba(234, 179, 8, 0.2);
+  border-color: rgba(234, 179, 8, 0.5);
+}
+
+.bangit-power-selector-info.warning .bangit-power-selector-info-text {
+  color: rgb(253, 224, 71);
+}
+
+.bangit-power-selector-info.error {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.bangit-power-selector-info.error .bangit-power-selector-info-text {
+  color: rgb(252, 165, 165);
+}
+
+.bangit-power-selector-info.burn {
+  background: rgba(251, 146, 60, 0.2);
+  border-color: rgba(251, 146, 60, 0.5);
+}
+
+.bangit-power-selector-info.burn .bangit-power-selector-info-text {
+  color: rgb(254, 215, 170);
+}
+
+.bangit-power-selector-submit {
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 20px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 2px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bangit-power-selector-submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.bangit-power-selector-submit.neutral {
+  background: #f2c1fb !important;
+  color: #1c1c1c !important;
+  border-color: #f2c1fb !important;
+}
+
+.bangit-power-selector-submit.neutral:disabled {
+  opacity: 0.6;
+}
+
+.bangit-power-selector-submit.neutral:hover:not(:disabled) {
+  background: #e5aef5 !important;
+}
+
+.bangit-power-selector-submit.up {
+  background: #81f052 !important;
+  color: #1c1c1c !important;
+  border-color: #81f052 !important;
+}
+
+.bangit-power-selector-submit.up:hover:not(:disabled) {
+  background: #9ff57a !important;
+}
+
+.bangit-power-selector-submit.down {
+  background: #ff7f7f !important;
+  color: #1c1c1c !important;
+  border-color: #ff7f7f !important;
+}
+
+.bangit-power-selector-submit.down:hover:not(:disabled) {
+  background: #ff9999 !important;
+}
+
+
+/* Mobile responsive */
+@media (max-width: 600px) {
+  .bangit-stats-container {
+    height: 28px;
+    gap: 3px;
+    margin-top: -4px;
+    margin-bottom: -4px;
+  }
+
+  .bangit-stats-container.bangit-visible {
+    padding: 3px 3px 3px 6px;
+  }
+
+  .bangit-impact {
+    font-size: 12px;
+    gap: 2px;
+    padding: 0 4px;
+  }
+
+  .bangit-impact-icon {
+    font-size: 12px;
+  }
+
+  .bangit-impact-value {
+    font-size: 12px;
+  }
+
+  .bangit-vote-btn {
+    height: 22px;
+    padding: 0 8px;
+    font-size: 12px;
+    border-radius: 5px;
+  }
+
+  .bangit-power-selector-modal {
+    padding: 20px;
+    max-width: 95%;
+  }
+
+  .bangit-power-selector-title {
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+
+  .bangit-power-selector-pct {
+    font-size: 28px;
+  }
+
+  .bangit-power-stat {
+    padding: 10px 12px;
+  }
+
+  .bangit-power-stat-icon {
+    font-size: 18px;
+  }
+
+  .bangit-power-stat-value {
+    font-size: 14px;
+  }
+}
+
+/* Custom scrollbar styling - sleek and narrow */
+/* Apply to all Bangit elements */
+[class*="bangit-"]::-webkit-scrollbar,
+.bangit-power-selector-modal::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+[class*="bangit-"]::-webkit-scrollbar-track,
+.bangit-power-selector-modal::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+[class*="bangit-"]::-webkit-scrollbar-thumb,
+.bangit-power-selector-modal::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+[class*="bangit-"]::-webkit-scrollbar-thumb:hover,
+.bangit-power-selector-modal::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Firefox scrollbar styling */
+[class*="bangit-"],
+.bangit-power-selector-modal {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+/* Refill Power Modal */
+.bangit-refill-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10003;
+  animation: fadeIn 0.2s ease;
+  backdrop-filter: blur(6px);
+}
+
+.bangit-refill-modal {
+  background: #1c1c1c;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 400px;
+  width: 90%;
+  position: relative;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+  border: 1px solid #38383a;
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.bangit-refill-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  color: #9a9a9f;
+  font-size: 18px;
+  font-weight: 300;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s ease;
+  z-index: 1;
+  opacity: 0.5;
+}
+
+.bangit-refill-modal-close:hover {
+  opacity: 1;
+}
+
+.bangit-refill-modal-title {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  text-align: center;
+  letter-spacing: normal;
+}
+
+.bangit-refill-modal-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: 16px;
+}
+
+.bangit-refill-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #f2c1fb;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.bangit-refill-stat-icon {
+  font-size: 16px;
+}
+
+.bangit-refill-stat-value {
+  color: #f2c1fb;
+  font-variant-numeric: tabular-nums;
+}
+
+.bangit-refill-modal-label {
+  color: #ffffff;
+  font-size: 16px;
+  text-align: center;
+  margin: 0 0 16px 0;
+}
+
+.bangit-refill-slider-container {
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.bangit-refill-slider-wrapper {
+  position: relative;
+  height: 32px;
+  --thumb-size: 20px;
+  --track-height: 32px;
+}
+
+.bangit-refill-slider-track {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: calc(var(--thumb-size) / 2);
+  right: calc(var(--thumb-size) / 2);
+  z-index: 0;
+}
+
+.bangit-refill-slider-visual-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 10px;
+  border-radius: 9999px;
+  background: rgba(31, 41, 55, 0.9);
+  z-index: 2;
+}
+
+.bangit-refill-slider-filled {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 10px;
+  border-radius: 9999px;
+  background: var(--darkSecondary);
+  z-index: 3;
+  width: 0;
+}
+
+.bangit-refill-slider-markers {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 14px;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.bangit-refill-slider-marker {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 9999px;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  transition: background 0.15s ease;
+}
+
+.bangit-refill-slider-marker-active {
+  background: #81f052;
+}
+
+.bangit-refill-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: var(--track-height);
+  background: transparent;
+  outline: none;
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  cursor: pointer;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bangit-refill-slider:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.bangit-refill-slider::-webkit-slider-runnable-track {
+  background: transparent;
+  height: var(--track-height);
+}
+
+.bangit-refill-slider::-moz-range-track {
+  background: transparent;
+  height: var(--track-height);
+}
+
+.bangit-refill-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: var(--thumb-size);
+  height: var(--thumb-size);
+  border-radius: 9999px;
+  background: var(--darkSecondary);
+  border: 2px solid #81f052;
+  cursor: pointer;
+  box-shadow: none;
+  margin-top: calc((var(--track-height) - var(--thumb-size)) / 2);
+  position: relative;
+  transition: box-shadow 120ms ease;
+}
+
+.bangit-refill-slider::-moz-range-thumb {
+  width: var(--thumb-size);
+  height: var(--thumb-size);
+  border-radius: 9999px;
+  background: var(--darkSecondary);
+  border: 2px solid #81f052;
+  cursor: pointer;
+  box-shadow: none;
+  transition: box-shadow 120ms ease;
+}
+
+.bangit-refill-slider:hover::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px rgba(129, 240, 82, 0.3);
+}
+
+.bangit-refill-slider:hover::-moz-range-thumb {
+  box-shadow: 0 0 0 3px rgba(129, 240, 82, 0.3);
+}
+
+.bangit-refill-slider:active::-webkit-slider-thumb {
+  box-shadow: 0 0 0 6px rgba(129, 240, 82, 0.45);
+}
+
+.bangit-refill-slider:active::-moz-range-thumb {
+  box-shadow: 0 0 0 6px rgba(129, 240, 82, 0.45);
+}
+
+.bangit-refill-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 16px;
+}
+
+.bangit-refill-preview-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #ffffff;
+  font-size: 16px;
+  margin: 0;
+}
+
+.bangit-refill-preview-icon {
+  font-size: 16px;
+}
+
+.bangit-refill-preview-value {
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.bangit-refill-error {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: rgb(252, 165, 165);
+  font-size: 14px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.bangit-refill-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.bangit-refill-cancel-btn,
+.bangit-refill-submit-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bangit-refill-cancel-btn {
+  background: #ff7f7f;
+  color: #1c1c1c;
+}
+
+.bangit-refill-cancel-btn:hover {
+  background: #ff9999;
+}
+
+.bangit-refill-submit-btn {
+  background: #81f052;
+  color: #1c1c1c;
+}
+
+.bangit-refill-submit-btn:hover:not(:disabled) {
+  background: #9ff57a;
+}
+
+.bangit-refill-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =====================================================
+   SIDEBAR NAV ITEMS - Performance & Rewards
+   ===================================================== */
+
+/* Container for sidebar nav items - don't create a new box, let children flow naturally in the nav */
+.bangit-sidebar-buttons {
+  display: contents;
+}
+
+/* Bangit nav items in sidebar - hover state */
+a.bangit-nav-item:hover > div {
+  background-color: rgba(231, 233, 234, 0.1);
+  border-radius: 9999px;
+}
+
+/* Label text color for nav items */
+.bangit-nav-item span:not(.bangit-nav-emoji) {
+  color: #f2c1fb !important;
+  font-weight: bold !important;
+}
+
+/* Emoji icon in nav items — must match native SVG icon sizing for collapsed sidebar centering */
+.bangit-nav-emoji {
+  font-size: 24px;
+  line-height: 1;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26.25px;
+  height: 26.25px;
+}
+
+/* Electric pulse animation for power nav item */
+.bangit-emoji-pulse-electric {
+  animation: bangit-emoji-pulse-electric 0.8s ease-in-out infinite;
+  animation-delay: 1s;
+}
+
+@keyframes bangit-emoji-pulse-electric {
+  0%, 100% {
+    transform: scale(1);
+    filter: brightness(1) drop-shadow(0 0 0px yellow);
+  }
+  25% {
+    transform: scale(1.5);
+    filter: brightness(1.8) drop-shadow(0 0 8px yellow);
+  }
+  50% {
+    transform: scale(0.9);
+    filter: brightness(1.2) drop-shadow(0 0 3px yellow);
+  }
+  75% {
+    transform: scale(1.3);
+    filter: brightness(1.6) drop-shadow(0 0 6px yellow);
+  }
+}
+
+/* Gift wobble animation for rewards nav item */
+.bangit-emoji-pulse-gift {
+  animation: bangit-emoji-pulse-gift 1.2s ease-in-out infinite;
+  animation-delay: 1.5s;
+}
+
+@keyframes bangit-emoji-pulse-gift {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+  }
+  20% {
+    transform: scale(1.4) rotate(-15deg);
+  }
+  40% {
+    transform: scale(1.1) rotate(15deg);
+  }
+  60% {
+    transform: scale(1.3) rotate(-10deg);
+  }
+  80% {
+    transform: scale(1.1) rotate(10deg) translateY(-3px);
+  }
+}
+
+/* =====================================================
+   SIDEBAR MODALS - Performance & Rewards
+   ===================================================== */
+
+/* Modal overlay */
+.bangit-sidebar-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10010;
+  animation: bangit-modal-overlay-fade-in 0.2s ease;
+}
+
+@keyframes bangit-modal-overlay-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal container */
+.bangit-sidebar-modal {
+  position: relative;
+  width: 90vw;
+  max-width: 420px;
+  max-height: 80vh;
+  background: #121212;
+  border: 2px solid #f2c1fb;
+  border-radius: 16px;
+  padding: 24px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: bangit-modal-scale-in 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+@keyframes bangit-modal-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Modal close button */
+.bangit-sidebar-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  color: #9a9a9f;
+  font-size: 24px;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  z-index: 1;
+}
+
+.bangit-sidebar-modal-close:hover {
+  background: #2c2c2e;
+  color: #ffffff;
+}
+
+/* Modal title */
+.bangit-sidebar-modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #f2c1fb;
+  margin: 0 0 16px 0;
+  text-align: center;
+}
+
+/* Modal scrollable content */
+.bangit-sidebar-modal-content {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+/* Hide scrollbar for Chrome/Safari */
+.bangit-sidebar-modal-content::-webkit-scrollbar {
+  display: none;
+}
+
+/* Loading spinner */
+.bangit-modal-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+
+.bangit-modal-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #38383a;
+  border-top-color: #f2c1fb;
+  border-radius: 50%;
+  animation: bangit-spinner 0.8s linear infinite;
+}
+
+@keyframes bangit-spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Stats summary card */
+.bangit-modal-stats-card {
+  background: #1c1c1c;
+  border-radius: 12px;
+  border: 2px solid #f2c1fb;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+/* Metric tabs - sliding indicator style matching feed header */
+.bangit-modal-metric-tabs {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 40px;
+  background: #000000;
+  border: 2px solid #f2c1fb;
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 12px;
+}
+
+/* Sliding indicator */
+.bangit-modal-metric-indicator {
+  position: absolute;
+  height: calc(100% - 8px);
+  --tab-width: calc((100% - 8px) / 3);
+  width: var(--tab-width);
+  left: calc(4px + var(--tab-index, 0) * var(--tab-width));
+  top: 4px;
+  background: #2f3336;
+  border: 2px solid #f2c1fb;
+  border-radius: 6px;
+  transition: left 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.bangit-modal-metric-tab {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  padding: 0;
+}
+
+.bangit-metric-tab-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #9a9a9f;
+  transition: color 0.15s ease, font-weight 0.15s ease;
+}
+
+.bangit-metric-tab-active .bangit-metric-tab-label {
+  color: #f2c1fb;
+  font-weight: 600;
+}
+
+.bangit-modal-metric-tab:hover .bangit-metric-tab-label {
+  color: #c0c0c0;
+}
+
+.bangit-metric-tab-active:hover .bangit-metric-tab-label {
+  color: #f2c1fb;
+}
+
+/* Metric description */
+.bangit-modal-metric-description {
+  font-size: 14px;
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 12px;
+  white-space: pre-line;
+  line-height: 1.4;
+  font-weight: 400;
+}
+
+/* Period navigation */
+.bangit-modal-period-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.bangit-modal-period-btn {
+  width: 48px;
+  height: 48px;
+  background: #2c2c2e;
+  border: 2px solid #f2c1fb;
+  border-radius: 50%;
+  color: #f2c1fb;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.bangit-modal-period-btn:hover {
+  background: #f2c1fb;
+  color: #1c1c1c;
+}
+
+.bangit-modal-period-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+.bangit-modal-period-info {
+  text-align: center;
+  min-width: 100px;
+}
+
+.bangit-modal-period-label {
+  font-size: 16px;
+  font-weight: 700;
+  color: #f2c1fb;
+}
+
+.bangit-modal-period-value {
+  font-size: 20px;
+  font-weight: 700;
+  margin-top: 1px;
+  color: #ffffff;
+}
+
+.bangit-modal-period-value.positive {
+  color: #81f052;
+}
+
+.bangit-modal-period-value.negative {
+  color: #ff7f7f;
+}
+
+.bangit-modal-period-percentile {
+  font-size: 14px;
+  color: #ffffff;
+  margin-top: 1px;
+}
+
+/* Period dots indicator */
+.bangit-modal-period-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.bangit-modal-period-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #48484a;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.bangit-modal-period-dot.active {
+  background: #f2c1fb;
+}
+
+/* Distribution/period card */
+.bangit-modal-card {
+  background: #1c1c1c;
+  border: 2px solid #f2c1fb;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.bangit-modal-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.bangit-modal-card-header:hover {
+  background: #2c2c2e;
+}
+
+.bangit-modal-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  text-align: center;
+}
+
+.bangit-modal-card-toggle {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  color: #9a9a9f;
+  transition: transform 0.2s ease;
+}
+
+.bangit-modal-card.expanded .bangit-modal-card-toggle {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.bangit-modal-card-content {
+  display: none;
+  padding: 12px 16px 16px;
+  border-top: 2px solid #38383a;
+  background: #1c1c1c;
+}
+
+.bangit-modal-card.expanded .bangit-modal-card-content {
+  display: block;
+}
+
+/* Summary stats grid */
+.bangit-modal-summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 24px;
+}
+
+.bangit-modal-summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 14px;
+}
+
+.bangit-modal-summary-label {
+  color: #9a9a9f;
+  font-size: 12px;
+}
+
+.bangit-modal-summary-value {
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.bangit-modal-summary-value.positive {
+  color: #81f052;
+}
+
+.bangit-modal-summary-value.negative {
+  color: #ff7f7f;
+}
+
+/* Vote entry card */
+.bangit-modal-vote-card {
+  background: #2c2c2e;
+  border: 2px solid #38383a;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+
+.bangit-modal-vote-card.upvote {
+  border-color: #81f052;
+}
+
+.bangit-modal-vote-card.downvote {
+  border-color: #ff7f7f;
+}
+
+.bangit-modal-vote-author {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.bangit-modal-vote-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+.bangit-modal-vote-username {
+  font-size: 14px;
+  color: #f2c1fb;
+  font-weight: 500;
+}
+
+.bangit-modal-vote-text {
+  font-size: 12px;
+  color: #9a9a9f;
+  margin-bottom: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bangit-modal-vote-stats {
+  font-size: 12px;
+  color: #9a9a9f;
+  line-height: 1.6;
+}
+
+/* Curator rewards list container */
+.bangit-rewards-curators-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Curator list header */
+.bangit-rewards-curators-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 0 8px 0;
+  margin-bottom: 8px;
+  border-bottom: 2px solid #38383a;
+}
+
+.bangit-rewards-curators-header span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* Curator reward row */
+.bangit-rewards-curator-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 2px solid #38383a;
+}
+
+.bangit-rewards-curator-row:last-child {
+  border-bottom: none;
+}
+
+.bangit-rewards-curator-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bangit-rewards-curator-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.bangit-rewards-curator-name {
+  font-size: 14px;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.bangit-rewards-jackpot-badge {
+  margin-left: 6px;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(234, 179, 8, 0.2);
+  color: #eab308;
+  border-radius: 9999px;
+}
+
+.bangit-rewards-curator-reward {
+  font-size: 14px;
+  font-weight: 600;
+  color: #f2c1fb;
+}
+
+/* Countdown in modal */
+.bangit-modal-countdown-section {
+  text-align: center;
+  padding: 16px;
+  background: #1c1c1c;
+  border: 2px solid #f2c1fb;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.bangit-modal-countdown-label {
+  font-size: 16px;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.bangit-modal-countdown-timer {
+  font-size: 28px;
+  font-weight: 700;
+  color: #f2c1fb;
+  font-family: 'Rubik', monospace;
+  letter-spacing: 2px;
+}
+
+/* Pool info in countdown section */
+.bangit-modal-pool-info {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(242, 193, 251, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bangit-modal-pool-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bangit-modal-pool-label {
+  font-size: 16px;
+  color: #ffffff;
+}
+
+.bangit-modal-pool-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #f2c1fb;
+}
+
+.bangit-modal-pool-jackpot {
+  color: #f5c542;
+}
+
+.bangit-modal-pool-chance {
+  font-size: 13px;
+  color: #aaaaaa;
+}
+
+/* Leaderboard link */
+.bangit-modal-leaderboard-link {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.bangit-modal-leaderboard-link a {
+  color: #f2c1fb;
+  text-decoration: underline;
+  font-size: 18px;
+  font-weight: 500;
+  transition: opacity 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bangit-modal-leaderboard-link a svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.bangit-modal-leaderboard-link a:hover {
+  opacity: 0.8;
+}
+
+/* Empty state */
+.bangit-modal-empty {
+  text-align: center;
+  padding: 32px 16px;
+  color: #9a9a9f;
+  font-style: italic;
+}
+
+/* Error state */
+.bangit-modal-error {
+  text-align: center;
+  padding: 16px;
+  color: #ff7f7f;
+  font-size: 14px;
+}
+
+/* Period Cards Section (Performance Modal) */
+.bangit-performance-history-section {
+  margin-top: 16px;
+}
+
+.bangit-performance-history-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* =====================================================
+   PERIOD SUMMARY STYLES (Performance Modal)
+   ===================================================== */
+
+.bangit-period-summary {
+  background: rgba(44, 44, 46, 0.5);
+  border-radius: 12px;
+  border: 2px solid #f2c1fb;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.bangit-period-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.bangit-period-summary-label {
+  font-size: 14px;
+  color: #ffffff;
+}
+
+.bangit-period-summary-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.bangit-period-summary-value.positive {
+  color: #81f052;
+}
+
+.bangit-period-summary-value.negative {
+  color: #ff7f7f;
+}
+
+.bangit-period-summary-value.pending {
+  color: #9a9a9f;
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* Jackpot row styling */
+.bangit-period-summary-row.bangit-jackpot-row {
+  background: linear-gradient(90deg, rgba(234, 179, 8, 0.2), rgba(217, 119, 6, 0.2));
+  border-radius: 8px;
+  padding: 8px;
+  margin-top: 8px;
+}
+
+.bangit-period-summary-label.bangit-jackpot-label {
+  font-weight: 600;
+  color: #eab308;
+}
+
+.bangit-period-summary-value.bangit-jackpot-value {
+  color: #eab308;
+  font-weight: 700;
+}
+
+/* =====================================================
+   VOTE CARD STYLES (Performance Modal)
+   ===================================================== */
+
+.bangit-period-votes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bangit-vote-card {
+  background: #1c1c1c;
+  border: 2px solid #38383a;
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+  font-weight: 400;
+}
+
+.bangit-vote-card.motion-positive {
+  border-color: #81f052;
+}
+
+.bangit-vote-card.motion-negative {
+  border-color: #ff7f7f;
+}
+
+.bangit-vote-card-direction {
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  margin: 0 0 8px 0;
+}
+
+.bangit-vote-card-direction.upvote {
+  color: #81f052;
+}
+
+.bangit-vote-card-direction.downvote {
+  color: #ff7f7f;
+}
+
+.bangit-vote-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+  margin-bottom: 8px;
+}
+
+.bangit-vote-card-column {
+  display: flex;
+  flex-direction: column;
+  border: 2px solid #f2c1fb;
+  border-radius: 8px;
+  padding: 8px;
+  text-align: center;
+}
+
+.bangit-vote-card-spacer {
+  flex: 1;
+}
+
+.bangit-vote-card-label {
+  font-size: 12px;
+  color: #9a9a9f;
+  margin: 0;
+}
+
+.bangit-vote-card-label.mt {
+  margin-top: 8px;
+}
+
+.bangit-vote-card-value {
+  font-size: 14px;
+  color: #ffffff;
+  margin: 0;
+}
+
+.bangit-vote-card-value.positive {
+  color: #81f052;
+  font-weight: 600;
+}
+
+.bangit-vote-card-value.negative {
+  color: #ff7f7f;
+  font-weight: 600;
+}
+
+.bangit-vote-card-avatar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.bangit-vote-card-avatar-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.bangit-vote-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+}
+
+.bangit-vote-card-tweet {
+  font-size: 14px;
+  color: #ffffff;
+  margin: 0;
+}
+
+.bangit-vote-card-tweet-link {
+  color: #f2c1fb;
+  cursor: pointer;
+}
+
+.bangit-vote-card-tweet-link:hover {
+  text-decoration: underline;
+}
+
+.bangit-vote-card-text {
+  font-size: 14px;
+  font-weight: 400;
+  color: #9a9a9f;
+  margin: 0 0 0px 0;
+}
+
+.bangit-vote-card-stat {
+  font-size: 14px;
+  color: #ffffff;
+  margin: 0;
+  font-weight: 400;
+}
+
+.bangit-vote-card-stat-value {
+  color: #ffffff;
+}
+
+.bangit-vote-card-stat-value.positive {
+  color: #81f052;
+}
+
+.bangit-vote-card-stat-value.negative {
+  color: #ff7f7f;
+}
+
+/* Reward Period Progress */
+.bangit-reward-period {
+  margin-top: 8px;
+  border: 2px solid #f2c1fb;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.bangit-reward-period-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.bangit-reward-period-label {
+  font-size: 12px;
+  color: #9a9a9f;
+  margin: 0;
+}
+
+.bangit-reward-period-time {
+  font-size: 12px;
+  color: #9a9a9f;
+  margin: 0;
+}
+
+.bangit-reward-period-time.complete {
+  color: #81f052;
+}
+
+.bangit-reward-period-bar {
+  height: 8px;
+  background: #2c2c2e;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.bangit-reward-period-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: #f2c1fb;
+  transition: width 0.3s ease;
+}
+
+.bangit-reward-period-bar-fill.complete {
+  background: #81f052;
+}
+
+.bangit-reward-period-pct {
+  font-size: 12px;
+  color: #9a9a9f;
+  text-align: center;
+  margin: 4px 0 0 0;
+}
+
+/* Current period card styling */
+.bangit-current-period-card {
+  border-color: #f2c1fb;
+}
+
+.bangit-current-period-card .bangit-modal-card-title {
+  font-weight: 700;
+}
+
+/* =====================================================
+   BANGIT HOME TAB STYLES
+   ===================================================== */
+
+/* Tab wrapper */
+.bangit-home-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  min-width: fit-content;
+  flex-shrink: 0 !important;
+}
+
+/* Tab link - match Twitter's native tab styling */
+.bangit-tab-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 16px 12px;
+  color: rgb(113, 118, 123);
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+  position: relative;
+  min-width: 72px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  flex-shrink: 0 !important;
+  white-space: nowrap;
+}
+
+.bangit-tab-link:hover {
+  background-color: rgba(242, 193, 251, 0.1);
+}
+
+.bangit-tab-content {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bangit-tab-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  object-fit: contain;
+}
+
+.bangit-tab-label {
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Active state */
+.bangit-tab-link.bangit-tab-active,
+.bangit-tab-link[aria-selected="true"] {
+  color: #f2c1fb;
+}
+
+.bangit-tab-link.bangit-tab-active .bangit-tab-label,
+.bangit-tab-link[aria-selected="true"] .bangit-tab-label {
+  font-weight: 700;
+}
+
+/* Tab indicator (underline) */
+.bangit-tab-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56px;
+  height: 4px;
+  border-radius: 2px;
+  background-color: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.bangit-tab-link.bangit-tab-active .bangit-tab-indicator,
+.bangit-tab-link[aria-selected="true"] .bangit-tab-indicator {
+  background-color: #f2c1fb;
+}
+
+/* =====================================================
+   BANGIT FEED CONTAINER STYLES
+   ===================================================== */
+
+.bangit-feed-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  background: #000000;
+  /* Position as overlay on top of native timeline */
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.bangit-feed-sticky {
+  display: flex;
+  flex-direction: column;
+  background: #000000;
+}
+
+.bangit-feed-header {
+  padding: 16px;
+  border-bottom: 1px solid #2f3336;
+  background: #000000;
+}
+
+/* Sticky header mode - when scrolled past Twitter header */
+.bangit-feed-sticky.bangit-header-sticky {
+  position: fixed;
+  top: var(--bangit-twitter-header-height, 53px);
+  left: var(--bangit-feed-left, 0);
+  width: var(--bangit-feed-width, 100%);
+  z-index: 100;
+  box-shadow: 0 1px 0 0 #2f3336;
+}
+
+/* Placeholder to prevent content jump when header becomes fixed */
+.bangit-header-placeholder {
+  height: var(--bangit-feed-sticky-height, 73px);
+  flex-shrink: 0;
+}
+
+/* Feeds / Leaderboard mode tabs */
+.bangit-feed-mode-tabs {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 44px;
+  background: #000000;
+  border: 2px solid #f2c1fb;
+  border-radius: 12px;
+  padding: 4px;
+  margin: 12px 16px 0;
+}
+
+.bangit-feed-mode-indicator {
+  position: absolute;
+  height: calc(100% - 8px);
+  --tab-width: calc((100% - 8px) / 2);
+  width: var(--tab-width);
+  left: calc(4px + var(--tab-index, 0) * var(--tab-width));
+  top: 4px;
+  background: #2f3336;
+  border: 2px solid #f2c1fb;
+  border-radius: 8px;
+  transition: left 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.bangit-feed-mode-button {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #9a9a9f;
+  font-size: 14px;
+  font-weight: 600;
+  transition: color 0.15s ease;
+}
+
+.bangit-feed-mode-button.bangit-feed-mode-active {
+  color: #f2c1fb;
+}
+
+/* Feed controls container */
+.bangit-feed-controls {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: 100%;
+}
+
+/* Sort tabs container - horizontal tabs with sliding indicator */
+.bangit-sort-tabs {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 48px;
+  background: #000000;
+  border: 2px solid #f2c1fb;
+  border-radius: 12px;
+  padding: 4px;
+  flex: 1 1 auto;
+}
+
+/* Sliding tab indicator */
+.bangit-tab-indicator {
+  position: absolute;
+  height: calc(100% - 8px);
+  /* Each tab is (100% - 8px padding) / 4 tabs */
+  --tab-width: calc((100% - 8px) / 4);
+  width: var(--tab-width);
+  left: calc(4px + var(--tab-index, 0) * var(--tab-width));
+  top: 4px;
+  background: #2f3336;
+  border: 2px solid #f2c1fb;
+  border-radius: 8px;
+  transition: left 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+  z-index: 1;
+  transform: none; /* Override translateX(-50%) from earlier .bangit-tab-indicator rule */
+}
+
+/* Tab button */
+.bangit-tab-button {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  padding: 0 8px;
+}
+
+.bangit-tab-emoji {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.bangit-tab-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #9a9a9f;
+  transition: color 0.15s ease, font-weight 0.15s ease;
+}
+
+.bangit-tab-active .bangit-tab-label {
+  color: #f2c1fb;
+  font-weight: 600;
+}
+
+/* Leaderboard header (type + period tabs) */
+.bangit-leaderboard-header {
+  padding: 12px 16px 16px;
+  border-bottom: 1px solid #2f3336;
+  background: #000000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bangit-leaderboard-tabs {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 48px;
+  background: #000000;
+  border: 2px solid #f2c1fb;
+  border-radius: 12px;
+  padding: 4px;
+}
+
+.bangit-leaderboard-tab-indicator {
+  position: absolute;
+  height: calc(100% - 8px);
+  width: calc((100% - 8px) / var(--tab-count, 2));
+  left: calc(4px + var(--tab-index, 0) * ((100% - 8px) / var(--tab-count, 2)));
+  top: 4px;
+  background: #2f3336;
+  border: 2px solid #f2c1fb;
+  border-radius: 8px;
+  transition: left 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.bangit-leaderboard-tab-button {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #9a9a9f;
+  font-size: 14px;
+  font-weight: 600;
+  transition: color 0.15s ease;
+}
+
+.bangit-leaderboard-tab-button.bangit-leaderboard-tab-active {
+  color: #f2c1fb;
+}
+
+/* Leaderboard table */
+.bangit-leaderboard {
+  position: relative;
+  padding: 0 12px 20px;
+}
+
+.bangit-leaderboard-table-header {
+  position: sticky;
+  top: calc(var(--bangit-twitter-header-height, 53px) + var(--bangit-feed-sticky-height, 0px));
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  padding: 24px 0px 8px 0px;
+  background: #000000;
+  border-bottom: 1px solid #2f3336;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.bangit-leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 4px 0;
+}
+
+.bangit-leaderboard-dim {
+  opacity: 0.5;
+}
+
+.bangit-leaderboard-col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.bangit-leaderboard-col-rank {
+  flex: 0.7;
+  display: flex;
+  justify-content: center;
+}
+
+.bangit-leaderboard-col-user {
+  flex: 1.2;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.bangit-leaderboard-col-motion {
+  flex: 0.8;
+  color: #f2c1fb;
+}
+
+.bangit-leaderboard-col-taste {
+  flex: 1;
+}
+
+.bangit-leaderboard-col-streak {
+  flex: 0.5;
+  gap: 4px;
+}
+
+.bangit-leaderboard-col-rewards {
+  flex: 0.8;
+  color: #f2c1fb;
+}
+
+.bangit-leaderboard-col-label {
+  color: #ffffff;
+}
+
+.bangit-leaderboard-col-sort {
+  position: relative;
+}
+
+.bangit-leaderboard-sort-button {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.15s ease;
+}
+
+.bangit-leaderboard-sort-button:hover {
+  color: #f2c1fb;
+}
+
+.bangit-leaderboard-sort-indicator {
+  display: inline-flex;
+  align-items: center;
+}
+
+.bangit-leaderboard-arrow {
+  width: 14px;
+  height: 14px;
+}
+
+.bangit-leaderboard-tooltip {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 14px;
+  border: 1px solid #f2c1fb;
+  border-radius: 999px;
+  color: #f2c1fb;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 12px;
+  text-align: center;
+}
+
+.bangit-leaderboard-tooltip::before {
+  content: '?';
+  position: absolute;
+  inset: 0;
+}
+
+.bangit-leaderboard-tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 8px;
+  padding: 6px 10px;
+  background: rgb(50, 50, 50);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.3;
+  white-space: pre;
+  text-align: center;
+  border-radius: 4px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 10;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+}
+
+.bangit-leaderboard-tooltip:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+.bangit-leaderboard-row {
+  display: flex;
+  align-items: center;
+  background: #1c1c1c;
+  border-radius: 12px;
+  padding: 10px 0px;
+  gap: 0;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.bangit-leaderboard-row:hover {
+  background: #202225;
+}
+
+.bangit-leaderboard-row:active {
+  transform: scale(0.985);
+}
+
+.bangit-leaderboard-row-current {
+  box-shadow: 0 0 0 2px #f2c1fb;
+}
+
+.bangit-leaderboard-row-pinned {
+  background: rgba(96, 77, 99, 0.35);
+}
+
+.bangit-leaderboard-avatar-wrap {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+}
+
+.bangit-leaderboard-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.bangit-leaderboard-avatar-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #2f3336;
+  color: #f2c1fb;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.bangit-leaderboard-user {
+  display: flex;
+  flex-direction: column;
+}
+
+.bangit-leaderboard-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bangit-leaderboard-handle {
+  font-size: 11px;
+  color: #9a9a9f;
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bangit-leaderboard-rank {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.bangit-leaderboard-trending {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  position: absolute;
+  right: calc(100% + 4px);
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+}
+
+.bangit-trending-up {
+  color: #81f052;
+}
+
+.bangit-trending-down {
+  color: #ff7f7f;
+}
+
+.bangit-leaderboard-flame {
+  width: 20px;
+  height: 20px;
+  color: #f2c1fb;
+}
+
+.bangit-leaderboard-loading {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 20;
+}
+
+.bangit-leaderboard-loading-text {
+  color: #9a9a9f;
+  font-size: 13px;
+}
+
+.bangit-leaderboard-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 32px 12px;
+  text-align: center;
+  color: #9a9a9f;
+}
+
+.bangit-leaderboard-empty-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.bangit-leaderboard-empty-subtitle {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.bangit-leaderboard-retry {
+  margin-top: 8px;
+  padding: 8px 16px;
+  background: #f2c1fb;
+  color: #1c1c1c;
+  border: none;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Sort dropdown container (may have period dropdown inline) */
+.bangit-sort-container {
+  display: flex;
+  gap: 12px;
+  flex: 1;
+  max-width: calc(50% - 8px);
+}
+
+/* Dropdown base styles */
+.bangit-dropdown {
+  position: relative;
+  flex: 1;
+}
+
+.bangit-dropdown-open {
+  z-index: 999999;
+}
+
+.bangit-dropdown-trigger {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  background: #000000;
+  border: 2px solid #f2c1fb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-radius 0.15s ease;
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.bangit-dropdown-trigger:hover {
+  background: #1d1f23;
+}
+
+/* When dropdown is open, flatten bottom corners of trigger */
+.bangit-dropdown-open .bangit-dropdown-trigger {
+  border-radius: 12px 12px 0 0;
+  border-bottom-color: transparent;
+}
+
+.bangit-dropdown-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #f2c1fb;
+}
+
+/* Chevron icons for dropdown */
+.bangit-dropdown-chevron {
+  position: absolute;
+  right: 8px;
+  color: #71767b;
+  transition: opacity 0.15s ease;
+}
+
+/* Show down chevron by default, hide up chevron */
+.bangit-chevron-down {
+  opacity: 1;
+}
+
+.bangit-chevron-up {
+  opacity: 0;
+}
+
+/* When open, hide down chevron, show up chevron */
+.bangit-dropdown-open .bangit-chevron-down {
+  opacity: 0;
+}
+
+.bangit-dropdown-open .bangit-chevron-up {
+  opacity: 1;
+}
+
+/* Dropdown content/menu - attached to trigger */
+.bangit-dropdown-content {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #000000;
+  border: 2px solid #f2c1fb;
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  z-index: 999999;
+  opacity: 0;
+  visibility: hidden;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 0.15s ease, max-height 0.2s ease, visibility 0.15s;
+}
+
+.bangit-dropdown-open .bangit-dropdown-content {
+  opacity: 1;
+  visibility: visible;
+  max-height: 300px;
+  overflow: visible;
+}
+
+/* Dropdown option */
+.bangit-dropdown-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.bangit-dropdown-option:first-child {
+  border-radius: 0;
+}
+
+.bangit-dropdown-option:last-child {
+  border-radius: 0 0 10px 10px;
+}
+
+.bangit-dropdown-option:only-child {
+  border-radius: 0 0 10px 10px;
+}
+
+.bangit-dropdown-option:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.bangit-dropdown-option-selected .bangit-option-label,
+.bangit-dropdown-option-selected .bangit-option-description {
+  color: #f2c1fb;
+}
+
+.bangit-option-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #e7e9ea;
+}
+
+.bangit-option-description {
+  font-size: 14px;
+  color: rgb(113, 118, 123);
+  margin-top: 2px;
+}
+
+/* Period dropdown slide animation */
+.bangit-period-dropdown {
+  transition: width 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+              margin-left 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+              opacity 0.2s ease,
+              transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.bangit-period-dropdown.bangit-period-visible {
+  flex: 0 0 90px;
+  width: 90px;
+  margin-left: 8px;
+  opacity: 1;
+  transform: translateX(0);
+  overflow: visible;
+}
+
+.bangit-period-dropdown.bangit-period-hidden {
+  flex: 0 0 0;
+  width: 0;
+  margin-left: 0;
+  opacity: 0;
+  transform: translateX(20px);
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.bangit-period-dropdown.bangit-period-hidden .bangit-dropdown-trigger,
+.bangit-period-dropdown.bangit-period-hidden .bangit-dropdown-content {
+  visibility: hidden;
+}
+
+/* Following checkbox */
+.bangit-following-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  height: 48px;
+  flex-shrink: 0;
+  width: auto;
+  padding: 0 12px;
+  margin-left: 8px;
+  border: 2px solid #f2c1fb;
+  border-radius: 12px;
+  transition: background-color 0.15s ease;
+  user-select: none;
+}
+
+.bangit-following-checkbox:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.bangit-checkbox-label {
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #9a9a9f;
+  transition: color 0.15s ease;
+}
+
+.bangit-checkbox-checked .bangit-checkbox-label {
+  color: #f2c1fb;
+}
+
+.bangit-checkbox-box {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #9a9a9f;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.bangit-checkbox-checked .bangit-checkbox-box {
+  border-color: #f2c1fb;
+  background: #f2c1fb;
+}
+
+.bangit-checkbox-check {
+  opacity: 0;
+  transform: scale(0.5);
+  transition: opacity 0.15s ease, transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+  color: #000000;
+}
+
+.bangit-checkbox-checked .bangit-checkbox-check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Legacy segmented control styles (keeping for backwards compatibility) */
+.bangit-following-toggle {
+  flex: 1;
+  max-width: calc(50% - 8px);
+}
+
+.bangit-segmented-control {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 40px;
+  background: #000000;
+  border: 2px solid #f2c1fb;
+  border-radius: 12px;
+  padding: 4px;
+}
+
+/* Sliding indicator */
+.bangit-segment-indicator {
+  position: absolute;
+  height: 32px;
+  width: calc(50% - 4px);
+  left: 4px;
+  background: #2f3336;
+  border: 2px solid #f2c1fb;
+  border-radius: 8px;
+  transition: left 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bangit-segment-indicator-right {
+  left: calc(50%);
+}
+
+/* Segment buttons */
+.bangit-segment-button {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.bangit-segment-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #9a9a9f;
+  transition: color 0.15s ease, font-weight 0.15s ease;
+}
+
+.bangit-segment-label-active {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Legacy styles (keeping for backwards compatibility) */
+.bangit-feed-title {
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #f2c1fb;
+  margin: 0 0 4px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.bangit-feed-logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+}
+
+.bangit-feed-subtitle {
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  color: rgb(113, 118, 123);
+  margin: 0;
+}
+
+/* Feed tweets container */
+.bangit-feed-tweets {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Embedded tweet wrapper */
+.bangit-embedded-tweet {
+  border-bottom: 1px solid #2f3336;
+  padding: 16px;
+}
+
+.bangit-embedded-tweet .twitter-tweet {
+  margin: 0 auto !important;
+}
+
+/* Voting overlay for embedded tweets */
+.bangit-embed-voting-overlay {
+  display: flex;
+  justify-content: center;
+  padding: 12px 0 4px 0;
+}
+
+/* Loading state */
+.bangit-feed-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
+  color: rgb(113, 118, 123);
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.bangit-feed-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #38383a;
+  border-top-color: #f2c1fb;
+  border-radius: 50%;
+  animation: bangit-feed-spin 0.8s linear infinite;
+  margin-bottom: 12px;
+}
+
+@keyframes bangit-feed-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Empty state */
+.bangit-feed-empty,
+.bangit-feed-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
+  color: rgb(113, 118, 123);
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  text-align: center;
+}
+
+.bangit-feed-refresh-btn,
+.bangit-feed-retry-btn,
+.bangit-feed-load-more-btn {
+  margin-top: 16px;
+  padding: 12px 24px;
+  background: #f2c1fb;
+  color: #1c1c1c;
+  border: none;
+  border-radius: 9999px;
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bangit-feed-refresh-btn:hover,
+.bangit-feed-retry-btn:hover,
+.bangit-feed-load-more-btn:hover {
+  background: #e5a8f0;
+  transform: scale(1.02);
+}
+
+/* Load more */
+.bangit-feed-load-more {
+  display: flex;
+  justify-content: center;
+  padding: 24px 16px;
+  border-top: 1px solid #2f3336;
+}
+
+/* Tweet placeholder */
+.bangit-tweet-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 12px;
+}
+
+.bangit-tweet-placeholder-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #38383a;
+  border-top-color: #f2c1fb;
+  border-radius: 50%;
+  animation: bangit-feed-spin 0.8s linear infinite;
+}
+
+/* Tweet error */
+.bangit-tweet-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(255, 127, 127, 0.1);
+  border-radius: 12px;
+  color: #ff7f7f;
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.bangit-tweet-link {
+  margin-top: 12px;
+  padding: 8px 16px;
+  background: #ff7f7f;
+  color: #1c1c1c;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.bangit-tweet-link:hover {
+  background: #ff9999;
+}
+
+/* Native tweet card styles */
+.bangit-tweet-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.2s ease;
+}
+
+.bangit-tweet-card:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.bangit-tweet-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.bangit-tweet-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #2f3336;
+  flex-shrink: 0;
+}
+
+.bangit-tweet-author {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.bangit-tweet-name {
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #e7e9ea;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bangit-tweet-username {
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  color: rgb(113, 118, 123);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bangit-tweet-time {
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  color: rgb(113, 118, 123);
+  flex-shrink: 0;
+}
+
+.bangit-tweet-content {
+  padding-left: 0;
+}
+
+.bangit-tweet-text {
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: #e7e9ea;
+  margin: 0 0 12px 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.bangit-tweet-media {
+  margin-top: 12px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #2f3336;
+}
+
+.bangit-tweet-media-img,
+.bangit-tweet-media-video {
+  width: 100%;
+  max-height: 500px;
+  object-fit: cover;
+  display: block;
+}
+
+.bangit-tweet-media-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+}
+
+.bangit-tweet-media-grid .bangit-tweet-media-img,
+.bangit-tweet-media-grid .bangit-tweet-media-video {
+  max-height: 250px;
+}
+
+.bangit-tweet-media-placeholder {
+  margin-top: 12px;
+  padding: 24px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #2f3336;
+  border-radius: 16px;
+  color: rgb(113, 118, 123);
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Hidden utility */
+.bangit-feed-hidden {
+  display: none !important;
+}
+
+/* Hide native tab underline indicators when Bangit feed is active (exclude Bangit tab) */
+.bangit-feed-active-mode [data-testid="primaryColumn"] [role="tablist"] [role="presentation"]:not(#bangit-feed-tab) [role="tab"] > div > div:last-child,
+.bangit-feed-active-mode [data-testid="primaryColumn"] [role="tablist"] [role="presentation"]:not(#bangit-feed-tab) a[role="tab"] > div > div:last-child,
+.bangit-feed-active-mode [data-testid="primaryColumn"] [role="tablist"] [role="presentation"]:not(#bangit-feed-tab) [role="tab"] > div > div > div:last-child {
+  background-color: transparent !important;
+  background: transparent !important;
+  border-color: transparent !important;
+}
+
+/* Target underline via absolute positioning (common Twitter pattern) - exclude Bangit tab */
+.bangit-feed-active-mode [data-testid="primaryColumn"] [role="tablist"] [role="presentation"]:not(#bangit-feed-tab) div[style*="background-color: rgb(29, 155, 240)"],
+.bangit-feed-active-mode [data-testid="primaryColumn"] [role="tablist"] [role="presentation"]:not(#bangit-feed-tab) div[style*="background-color: rgb(239"],
+.bangit-feed-active-mode [data-testid="primaryColumn"] [role="tablist"] [role="presentation"]:not(#bangit-feed-tab) div[style*="rgb(29, 155, 240)"] {
+  background-color: transparent !important;
+  background: transparent !important;
+  opacity: 0 !important;
+}
+
+/* Also target by position - underline is usually at bottom with small height - exclude Bangit tab */
+.bangit-feed-active-mode [data-testid="primaryColumn"] [role="tablist"] [role="presentation"]:not(#bangit-feed-tab) div[style*="bottom: 0"],
+.bangit-feed-active-mode [data-testid="primaryColumn"] [role="tablist"] [role="presentation"]:not(#bangit-feed-tab) div[style*="height: 4px"],
+.bangit-feed-active-mode [data-testid="primaryColumn"] [role="tablist"] [role="presentation"]:not(#bangit-feed-tab) div[style*="height: 2px"] {
+  background-color: transparent !important;
+  background: transparent !important;
+  opacity: 0 !important;
+}
+
+/* Style Bangit tab underline with brand color */
+#bangit-feed-tab div[style*="background-color: rgb(29, 155, 240)"],
+#bangit-feed-tab div[style*="rgb(29, 155, 240)"] {
+  background-color: #f2c1fb !important;
+  background: #f2c1fb !important;
+  opacity: 1 !important;
+}
+
+/* Mute native tab text when Bangit feed is active */
+.bangit-feed-active-mode [data-testid="primaryColumn"] [role="tablist"] [role="presentation"]:not(#bangit-feed-tab) [role="tab"] span {
+  color: rgb(113, 118, 123) !important;
+}
+
+/* Mute Bangit tab text when Bangit feed is NOT active */
+body:not(.bangit-feed-active-mode) #bangit-feed-tab [role="tab"] span {
+  color: rgb(113, 118, 123) !important;
+}
+
+/* Keep Bangit tab text bright when active */
+.bangit-feed-active-mode #bangit-feed-tab [role="tab"] span {
+  color: rgb(231, 233, 234) !important;
+}
+
+/* COMMENTED OUT: Removed to avoid Chrome Web Store "DomBlockers" rejection
+   Hide the "Show X posts" / "posted" popup when Bangit feed is active
+   Use :has([role="status"]) to only target the popup, not the header (which also uses transform)
+.bangit-feed-active-mode [data-testid="primaryColumn"] > div > div[style*="transform"]:has([role="status"]),
+.bangit-feed-active-mode [data-testid="primaryColumn"] > div > div > div[style*="transform"]:has([role="status"]) {
+  display: none !important;
+  visibility: hidden !important;
+}
+*/
+
+/* =====================================================
+   BANGIT CUSTOM FEED TWEET STYLES
+   ===================================================== */
+
+.bangit-feed-content {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Individual tweet article */
+.bangit-tweet {
+  border-bottom: 1px solid rgb(47, 51, 54);
+  padding: 12px 12px 12px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.bangit-tweet:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* Reply chain indicator */
+.bangit-reply-chain {
+  padding: 0;
+  margin: 0 0 4px 0;
+  font-size: 13px;
+  color: rgb(113, 118, 123);
+}
+
+.bangit-reply-chain-text {
+  color: rgb(113, 118, 123);
+}
+
+.bangit-reply-chain-link {
+  color: #f2c1fb;
+  text-decoration: none;
+}
+
+.bangit-reply-chain-link:hover {
+  text-decoration: underline;
+}
+
+/* Mention links in tweet text */
+.bangit-mention-link {
+  color: #f2c1fb;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.bangit-mention-link:hover {
+  text-decoration: underline;
+}
+
+/* URL links in tweet text */
+.bangit-text-link {
+  color: #f2c1fb;
+  text-decoration: none;
+  word-break: break-all;
+  cursor: pointer;
+}
+
+.bangit-text-link:hover {
+  text-decoration: underline;
+}
+
+/* Tweet content layout */
+.bangit-tweet-content {
+  display: flex;
+  gap: 12px;
+}
+
+/* Avatar */
+.bangit-avatar {
+  flex-shrink: 0;
+}
+
+.bangit-avatar img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: rgb(47, 51, 54);
+}
+
+.bangit-avatar a {
+  display: block;
+}
+
+/* Tweet body */
+.bangit-tweet-body {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Tweet header with author info */
+.bangit-tweet-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 0;
+  flex-wrap: wrap;
+}
+
+.bangit-author-link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.bangit-author-link:hover .bangit-name {
+  text-decoration: underline;
+}
+
+.bangit-name {
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: rgb(231, 233, 234);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bangit-handle {
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  color: rgb(113, 118, 123);
+  white-space: nowrap;
+}
+
+.bangit-time {
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  color: rgb(113, 118, 123);
+  white-space: nowrap;
+}
+
+.bangit-time::before {
+  content: '\00b7';
+  margin: 0 4px;
+}
+
+/* Tweet text */
+.bangit-tweet-text {
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: rgb(231, 233, 234);
+  margin: 0 0 12px 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* Media container */
+.bangit-tweet-media {
+  margin-bottom: 12px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgb(47, 51, 54);
+}
+
+.bangit-media-item {
+  width: 100%;
+}
+
+.bangit-media-item img,
+.bangit-media-item video {
+  width: 100%;
+  max-height: 500px;
+  object-fit: cover;
+  display: block;
+}
+
+/* Media grid layouts */
+.bangit-media-single .bangit-media-item img,
+.bangit-media-single .bangit-media-item video {
+  max-height: 500px;
+}
+
+.bangit-media-double,
+.bangit-media-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+}
+
+.bangit-media-double .bangit-media-item img,
+.bangit-media-double .bangit-media-item video,
+.bangit-media-grid .bangit-media-item img,
+.bangit-media-grid .bangit-media-item video {
+  max-height: 250px;
+}
+
+/* Quoted tweet */
+.bangit-quoted-tweet {
+  margin-bottom: 12px;
+  border: 1px solid rgb(47, 51, 54);
+  border-radius: 16px;
+  padding: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.bangit-quoted-tweet:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.bangit-quoted-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.bangit-quoted-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.bangit-quoted-name {
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: rgb(231, 233, 234);
+}
+
+.bangit-quoted-handle {
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  color: rgb(113, 118, 123);
+}
+
+.bangit-quoted-text {
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: rgb(231, 233, 234);
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* Actions bar */
+.bangit-actions {
+  display: flex;
+  align-items: center;
+  margin-top: 12px;
+}
+
+/* Loading spinner */
+.bangit-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #38383a;
+  border-top-color: #f2c1fb;
+  border-radius: 50%;
+  animation: bangit-feed-spin 0.8s linear infinite;
+}
+
+/* Load more sentinel (invisible trigger for infinite scroll) */
+.bangit-load-more-sentinel {
+  height: 1px;
+  width: 100%;
+}
+
+/* Feed empty secondary text */
+.bangit-feed-empty-sub,
+.bangit-feed-error-sub {
+  font-size: 14px;
+  color: rgb(113, 118, 123);
+  margin-top: 4px;
+}
+
+/* =====================================================
+   RESTRICTION MODAL
+   ===================================================== */
+
+.bangit-restriction-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.bangit-restriction-content {
+  background: #121212;
+  border-radius: 20px;
+  padding: 32px;
+  max-width: 380px;
+  width: 90%;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  border: 2px solid #f2c1fb;
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.bangit-restriction-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  color: rgb(139, 152, 165);
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.bangit-restriction-close:hover {
+  background: transparent;
+  color: #ffffff;
+}
+
+.bangit-restriction-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 16px;
+  background: rgba(242, 193, 251, 0.1);
+  border-radius: 50%;
+  color: #f2c1fb;
+}
+
+.bangit-restriction-icon-shield {
+  background: rgba(242, 193, 251, 0.1);
+  color: #f2c1fb;
+}
+
+.bangit-restriction-icon-warning {
+  background: rgba(255, 127, 127, 0.1);
+  color: #ff7f7f;
+}
+
+.bangit-restriction-title {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.02em;
+}
+
+.bangit-need-code-link {
+  color: #f2c1fb;
+  font-size: 15px;
+  text-decoration: underline;
+  margin-bottom: 12px;
+  display: inline-block;
+  transition: opacity 0.2s ease;
+}
+
+.bangit-need-code-link:hover {
+  opacity: 0.8;
+}
+
+.bangit-restriction-description {
+  color: #ffffff;
+  font-size: 15px;
+  margin: 0 0 8px 0;
+  line-height: 1.5;
+}
+
+.bangit-restriction-criteria {
+  margin-bottom: 12px;
+}
+
+.bangit-restriction-criteria .bangit-restriction-description {
+  margin: 0;
+  line-height: 22px;
+  color: #ffffff;
+}
+
+.bangit-restriction-subdescription {
+  color: rgb(113, 118, 123);
+  font-size: 14px;
+  font-style: italic;
+  margin: 0 0 20px 0;
+}
+
+/* Invite code form */
+.bangit-invite-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.bangit-invite-input {
+  width: 100%;
+  padding: 14px 16px;
+  background: #2c2c2e;
+  border: 1px solid #38383a;
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 15px;
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  outline: none;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.bangit-invite-input:focus {
+  border-color: #f2c1fb;
+}
+
+.bangit-invite-input.error {
+  border: 2px solid #ff7f7f;
+}
+
+.bangit-invite-input.error:focus {
+  border-color: #ff7f7f;
+}
+
+.bangit-invite-input::placeholder {
+  color: rgb(113, 118, 123);
+}
+
+.bangit-invite-error {
+  color: #ff7f7f;
+  font-size: 13px;
+  text-align: left;
+  margin-top: -4px;
+  min-height: 18px;
+}
+
+.bangit-invite-submit-btn {
+  width: 100%;
+  padding: 14px 24px;
+  background: #f2c1fb;
+  border: none;
+  border-radius: 12px;
+  color: #1c1c1c;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.bangit-invite-submit-btn:hover:not(:disabled) {
+  background: #e5aef3;
+  transform: translateY(-1px);
+}
+
+.bangit-invite-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Validation timer */
+.bangit-validation-timer {
+  text-align: center;
+  margin: 12px 0 4px 0;
+}
+
+.bangit-timer-label {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+}
+
+.bangit-timer-value {
+  color: #f2c1fb;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: 'SF Mono', Monaco, 'Andale Mono', monospace;
+}
+
+.bangit-validation-retry-btn {
+  width: 100%;
+  padding: 10px 24px;
+  background: #f2c1fb;
+  border: none;
+  border-radius: 12px;
+  color: #1c1c1c;
+  font-size: 17px;
+  font-weight: 600;
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.bangit-validation-retry-btn:hover:not(:disabled) {
+  background: #e5aef3;
+  transform: translateY(-1px);
+}
+
+.bangit-validation-retry-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* OK and Logout buttons */
+.bangit-restriction-ok-btn {
+  width: 100%;
+  padding: 10px 24px;
+  background: transparent;
+  border: 2px solid #f2c1fb;
+  border-radius: 12px;
+  color: #f2c1fb;
+  font-size: 17px;
+  font-weight: 600;
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 12px;
+}
+
+.bangit-restriction-ok-btn:hover {
+  background: rgba(242, 193, 251, 0.1);
+}
+
+.bangit-restriction-logout-btn {
+  width: 100%;
+  padding: 10px 24px;
+  background: #1c1c1c;
+  border: 2px solid #ff7f7f;
+  border-radius: 12px;
+  color: #ff7f7f;
+  font-size: 17px;
+  font-weight: 600;
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 12px;
+}
+
+.bangit-restriction-logout-btn:hover {
+  background: rgba(255, 127, 127, 0.1);
+}
+
+/* Small spinner for buttons */
+.bangit-spinner-small {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(28, 28, 28, 0.3);
+  border-top-color: #1c1c1c;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: inline-block;
+}
+
+/* =====================================================
+   SYBIL MODAL STYLES - Multi-account detection
+   ===================================================== */
+
+.bangit-sybil-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.bangit-sybil-content {
+  background: #121212;
+  border-radius: 20px;
+  padding: 32px;
+  max-width: 380px;
+  width: 90%;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  border: 2px solid #f2c1fb;
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.bangit-sybil-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  color: rgb(139, 152, 165);
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.bangit-sybil-close:hover {
+  background: transparent;
+  color: #ffffff;
+}
+
+.bangit-sybil-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 16px;
+  background: rgba(242, 193, 251, 0.1);
+  border-radius: 50%;
+  color: #f2c1fb;
+}
+
+.bangit-sybil-title {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  letter-spacing: -0.02em;
+}
+
+.bangit-sybil-description {
+  color: rgb(139, 152, 165);
+  font-size: 15px;
+  margin: 0 0 8px 0;
+  line-height: 1.5;
+}
+
+.bangit-sybil-username {
+  color: #f2c1fb;
+  font-weight: 600;
+}
+
+.bangit-sybil-subdescription {
+  color: rgb(113, 118, 123);
+  font-size: 14px;
+  margin: 0 0 20px 0;
+  line-height: 1.4;
+}
+
+.bangit-sybil-ok-btn {
+  width: 100%;
+  padding: 10px 24px;
+  background: transparent;
+  border: 2px solid #f2c1fb;
+  border-radius: 12px;
+  color: #f2c1fb;
+  font-size: 17px;
+  font-weight: 600;
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 12px;
+}
+
+.bangit-sybil-ok-btn:hover {
+  background: rgba(242, 193, 251, 0.1);
+}
+
+.bangit-sybil-logout-btn {
+  width: 100%;
+  padding: 10px 24px;
+  background: #1c1c1c;
+  border: 2px solid #ff7f7f;
+  border-radius: 12px;
+  color: #ff7f7f;
+  font-size: 17px;
+  font-weight: 600;
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 12px;
+}
+
+.bangit-sybil-logout-btn:hover {
+  background: rgba(255, 127, 127, 0.1);
+}
+
+/* =====================================================
+   FLIP ANIMATION STYLES - Real-time Feed Reordering
+   ===================================================== */
+
+/* Tweet transition during FLIP reorder */
+.bangit-tweet {
+  will-change: transform;
+}
+
+/* Rank change glow effects */
+.bangit-tweet.bangit-rank-up-glow {
+  animation: bangit-rank-up-glow 0.8s ease-out;
+}
+
+.bangit-tweet.bangit-rank-down-glow {
+  animation: bangit-rank-down-glow 0.8s ease-out;
+}
+
+.bangit-tweet.bangit-bump-glow {
+  animation: bangit-bump-glow 1.2s ease-out;
+}
+
+.bangit-tweet.bangit-bump-entry {
+  animation: bangit-bump-slide-in 0.5s ease-out, bangit-bump-glow 1.2s ease-out;
+}
+
+/* GREEN GLOW - Rank Up (HOT/TOP feeds) */
+@keyframes bangit-rank-up-glow {
+  0% { box-shadow: inset 0 0 0 2px #81f052, 0 0 0px 0px rgba(129, 240, 82, 0); }
+  20% { box-shadow: inset 0 0 0 3px #81f052, 0 0 30px 8px rgba(129, 240, 82, 0.5); }
+  100% { box-shadow: inset 0 0 0 0px transparent, 0 0 0px 0px transparent; }
+}
+
+/* RED GLOW - Rank Down (HOT/TOP feeds) */
+@keyframes bangit-rank-down-glow {
+  0% { box-shadow: inset 0 0 0 2px #ff7f7f, 0 0 0px 0px rgba(255, 127, 127, 0); }
+  20% { box-shadow: inset 0 0 0 3px #ff7f7f, 0 0 25px 6px rgba(255, 127, 127, 0.45); }
+  100% { box-shadow: inset 0 0 0 0px transparent, 0 0 0px 0px transparent; }
+}
+
+/* PINK GLOW - Bump/New tweets */
+@keyframes bangit-bump-glow {
+  0% { box-shadow: inset 0 0 0 2px #f2c1fb, 0 0 20px 4px rgba(242, 193, 251, 0.4); }
+  50% { box-shadow: inset 0 0 0 2px #f2c1fb, 0 0 30px 8px rgba(242, 193, 251, 0.3); }
+  100% { box-shadow: inset 0 0 0 0px transparent, 0 0 0px 0px transparent; }
+}
+
+/* SLIDE-IN - New/Bumped entries */
+@keyframes bangit-bump-slide-in {
+  0% { transform: translateY(60px); opacity: 0.7; }
+  60% { transform: translateY(-8px); opacity: 1; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Rank change indicator badge */
+.bangit-rank-change {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 10;
+  pointer-events: none;
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.bangit-rank-change.bangit-rank-animating {
+  opacity: 1;
+  transform: scale(1);
+  animation: bangit-rank-badge-pulse 2s ease-out forwards;
+}
+
+.bangit-rank-change.bangit-rank-up {
+  background: rgba(129, 240, 82, 0.9);
+  color: #1c1c1c;
+}
+
+.bangit-rank-change.bangit-rank-down {
+  background: rgba(255, 127, 127, 0.9);
+  color: #1c1c1c;
+}
+
+.bangit-rank-arrow {
+  font-size: 14px;
+}
+
+.bangit-rank-magnitude {
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes bangit-rank-badge-pulse {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.8) translateY(-10px);
+  }
+}
