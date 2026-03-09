@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Bangit",
   "description": "Vote on tweets to influence rankings and earn rewards.",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "options_page": "options.html",
   "permissions": [
     "storage",
